@@ -1,87 +1,55 @@
 import { useState } from "react"
 import { NavigationHeader } from "@/components/NavigationHeader"
+import { WhatsAppIntegration } from "@/components/WhatsAppIntegration"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { 
-  MessageSquare, 
-  Smartphone, 
-  CheckCircle, 
-  AlertCircle, 
-  Bot, 
-  Send,
-  QrCode,
-  Settings,
-  Users,
-  BarChart3
-} from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useWhatsApp } from "@/hooks/useWhatsApp"
+import { useAuth } from "@/hooks/useAuth"
+import { MessageSquare, Users, Send, Bot, User, CheckCircle, Smartphone, Loader2 } from "lucide-react"
 
-interface Message {
-  id: string
-  sender: string
-  senderName: string
-  content: string
-  timestamp: string
-  type: "user" | "bot" | "notification"
-}
-
-export const WhatsAppPage = () => {
-  const [isConnected, setIsConnected] = useState(true)
+const WhatsAppPage = () => {
+  const { user } = useAuth()
+  const { messages, isConnected, loading, sendMessage, connectWhatsApp, disconnectWhatsApp } = useWhatsApp()
   const [newMessage, setNewMessage] = useState("")
-  
-  const [messages] = useState<Message[]>([
-    {
-      id: "1",
-      sender: "bot",
-      senderName: "Mesada Mestre Bot",
-      content: "Olá! Bem-vindos ao Mesada Mestre! 🎉 Estou aqui para ajudar a organizar as tarefas e mesadas da família.",
-      timestamp: "2024-01-20T09:00:00",
-      type: "bot"
-    },
-    {
-      id: "2", 
-      sender: "pedro",
-      senderName: "Pedro Silva",
-      content: "Oi! Terminei de organizar meu quarto! 🎉",
-      timestamp: "2024-01-20T10:30:00", 
-      type: "user"
-    },
-    {
-      id: "3",
-      sender: "bot",
-      senderName: "Mesada Mestre Bot", 
-      content: "Parabéns Pedro! 🌟 Você ganhou 15 pontos pela tarefa 'Organizar o quarto'. Continue assim!",
-      timestamp: "2024-01-20T10:31:00",
-      type: "bot"
-    },
-    {
-      id: "4",
-      sender: "maria",
-      senderName: "Maria Silva",
-      content: "Mamãe, posso fazer uma tarefa extra hoje?",
-      timestamp: "2024-01-20T14:15:00",
-      type: "user"
-    }
-  ])
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newMessage.trim()) return
-    
-    // Aqui seria enviado via API do WhatsApp
-    console.log("Enviando mensagem:", newMessage)
-    setNewMessage("")
+    if (newMessage.trim() && isConnected) {
+      await sendMessage(newMessage)
+      setNewMessage("")
+    }
   }
 
   const handleConnect = () => {
-    // Aqui seria a integração real com WhatsApp Business API
-    setIsConnected(true)
+    connectWhatsApp()
   }
 
   const handleDisconnect = () => {
-    setIsConnected(false)
+    disconnectWhatsApp()
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="p-6 text-center">
+          <p className="text-muted-foreground">Faça login para acessar o WhatsApp</p>
+        </Card>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Carregando WhatsApp...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -102,204 +70,125 @@ export const WhatsAppPage = () => {
               Gerencie a comunicação com seus filhos via WhatsApp
             </p>
           </div>
-          
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <QrCode className="h-4 w-4" />
-              QR Code
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Configurações
-            </Button>
-          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Connection Status */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card className="border-0 shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5" />
-                  Status da Conexão
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-muted/50 to-muted/20 border border-border/50">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${isConnected ? 'bg-success/20' : 'bg-destructive/20'}`}>
-                      <Smartphone className={`h-5 w-5 ${isConnected ? 'text-success' : 'text-destructive'}`} />
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">WhatsApp Business</p>
-                      <p className="text-sm text-muted-foreground">
-                        {isConnected ? 'Conectado e funcionando' : 'Desconectado'}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <Badge 
-                    variant={isConnected ? "default" : "destructive"}
-                    className="gap-1"
-                  >
-                    {isConnected ? (
-                      <CheckCircle className="h-3 w-3" />
-                    ) : (
-                      <AlertCircle className="h-3 w-3" />
-                    )}
-                    {isConnected ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                </div>
-
-                {isConnected ? (
-                  <Button 
-                    variant="destructive" 
-                    className="w-full"
-                    onClick={handleDisconnect}
-                  >
-                    Desconectar
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="hero" 
-                    className="w-full gap-2"
-                    onClick={handleConnect}
-                  >
-                    <Smartphone className="h-4 w-4" />
-                    Conectar WhatsApp
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Stats */}
-            <Card className="border-0 shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Estatísticas
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 rounded-lg bg-success/10 border border-success/20">
-                    <p className="text-xl font-bold text-success">24</p>
-                    <p className="text-xs text-muted-foreground">Mensagens hoje</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-accent/10 border border-accent/20">
-                    <p className="text-xl font-bold text-accent">7</p>
-                    <p className="text-xs text-muted-foreground">Tarefas criadas</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-primary/10 border border-primary/20">
-                    <p className="text-xl font-bold text-primary">2</p>
-                    <p className="text-xs text-muted-foreground">Filhos ativos</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-warning/10 border border-warning/20">
-                    <p className="text-xl font-bold text-warning">89%</p>
-                    <p className="text-xs text-muted-foreground">Taxa resposta</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="border-0 shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bot className="h-5 w-5" />
-                  Ações Rápidas
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="space-y-2">
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <Users className="h-4 w-4" />
-                  Adicionar Contato
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Mensagem em Grupo
-                </Button>
-                <Button variant="outline" className="w-full justify-start gap-2">
-                  <Bot className="h-4 w-4" />
-                  Configurar Bot
-                </Button>
-              </CardContent>
-            </Card>
+          {/* WhatsApp Integration Component */}
+          <div className="lg:col-span-1">
+            <WhatsAppIntegration 
+              isConnected={isConnected}
+              messagesCount={messages.length}
+              lastMessage={messages[0]?.content || "Nenhuma mensagem ainda"}
+            />
           </div>
 
           {/* Chat Interface */}
           <div className="lg:col-span-2">
-            <Card className="border-0 shadow-card h-[600px] flex flex-col">
-              <CardHeader className="border-b border-border/50">
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Chat Familiar
+            <Card className="border-0 shadow-card">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                  Chat da Família
                   <Badge variant="outline" className="ml-auto">
                     {messages.length} mensagens
                   </Badge>
                 </CardTitle>
               </CardHeader>
               
-              {/* Messages */}
-              <CardContent className="flex-1 p-4 overflow-y-auto space-y-4">
-                {messages.map((message) => (
-                  <div 
-                    key={message.id} 
-                    className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'}`}
-                  >
-                    <div className={`max-w-[80%] ${
-                      message.type === 'bot' 
-                        ? 'bg-muted rounded-2xl rounded-bl-sm' 
-                        : 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm'
-                    } p-3`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        {message.type === 'bot' && <Bot className="h-4 w-4 text-primary" />}
-                        <span className="text-xs font-medium opacity-80">
-                          {message.senderName}
-                        </span>
-                      </div>
-                      <p className="text-sm leading-relaxed">{message.content}</p>
-                      <p className="text-xs opacity-60 mt-1">
-                        {new Date(message.timestamp).toLocaleTimeString('pt-BR', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
-                    </div>
+              <CardContent className="space-y-4">
+                {/* Connection Actions */}
+                {!isConnected ? (
+                  <div className="text-center py-8">
+                    <Smartphone className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      WhatsApp não conectado
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Conecte seu WhatsApp para começar a receber e enviar mensagens
+                    </p>
+                    <Button variant="hero" onClick={handleConnect} className="gap-2">
+                      <Smartphone className="h-4 w-4" />
+                      Conectar WhatsApp
+                    </Button>
                   </div>
-                ))}
-              </CardContent>
-              
-              {/* Message Input */}
-              <div className="border-t border-border/50 p-4">
-                <form onSubmit={handleSendMessage} className="flex gap-2">
-                  <Textarea
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Digite uma mensagem para a família..."
-                    className="flex-1 min-h-[40px] max-h-[100px] resize-none"
-                    disabled={!isConnected}
-                  />
-                  <Button 
-                    type="submit" 
-                    variant="hero" 
-                    size="icon"
-                    disabled={!newMessage.trim() || !isConnected}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </form>
-                
-                {!isConnected && (
-                  <p className="text-xs text-muted-foreground mt-2 text-center">
-                    Conecte o WhatsApp para enviar mensagens
-                  </p>
+                ) : (
+                  <>
+                    {/* Messages List */}
+                    <div className="max-h-96 overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg">
+                      {messages.length === 0 ? (
+                        <div className="text-center py-8">
+                          <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-muted-foreground">Nenhuma mensagem ainda</p>
+                        </div>
+                      ) : (
+                        messages.map((message) => (
+                          <div key={message.id} className="flex items-start gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                                {message.sender_name.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(message.timestamp).toLocaleTimeString('pt-BR', { 
+                                    hour: '2-digit', minute: '2-digit' 
+                                  })}
+                                </span>
+                                <span className="font-medium">{message.sender_name}</span>
+                              </div>
+                              
+                              <p className="text-foreground leading-relaxed">{message.content}</p>
+                              
+                              <div className="flex items-center gap-1">
+                                <Badge variant="secondary" className="gap-1 text-xs">
+                                  {message.message_type === "user" && <User className="h-3 w-3" />}
+                                  {message.message_type === "bot" && <Bot className="h-3 w-3" />}
+                                  {message.message_type === "notification" && <CheckCircle className="h-3 w-3" />}
+                                  
+                                  {message.message_type === "user" ? "Mensagem" : 
+                                   message.message_type === "bot" ? "Bot" : "Sistema"}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Message Input */}
+                    <form onSubmit={handleSendMessage} className="flex gap-2">
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Digite uma mensagem..."
+                        className="flex-1"
+                      />
+                      <Button 
+                        type="submit" 
+                        variant="hero" 
+                        disabled={!newMessage.trim()}
+                        className="gap-2"
+                      >
+                        <Send className="h-4 w-4" />
+                        Enviar
+                      </Button>
+                    </form>
+
+                    {/* Disconnect Button */}
+                    <div className="pt-4 border-t">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleDisconnect}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        Desconectar WhatsApp
+                      </Button>
+                    </div>
+                  </>
                 )}
-              </div>
+              </CardContent>
             </Card>
           </div>
         </div>
