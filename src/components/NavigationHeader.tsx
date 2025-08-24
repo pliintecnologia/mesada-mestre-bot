@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +17,7 @@ import {
   X
 } from "lucide-react"
 import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 interface NavigationHeaderProps {
   familyName: string
@@ -32,6 +34,24 @@ export const NavigationHeader = ({
 }: NavigationHeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const location = useLocation()
+  const { signOut } = useAuth()
+  const { toast } = useToast()
+
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      toast({
+        title: "Logout realizado com sucesso!",
+        description: "Até logo!"
+      })
+    } catch (error) {
+      toast({
+        title: "Erro no logout",
+        description: "Tente novamente",
+        variant: "destructive"
+      })
+    }
+  }
 
   const navItems = [
     { path: "/", label: "Dashboard", icon: Home },
@@ -103,7 +123,12 @@ export const NavigationHeader = ({
             </AvatarFallback>
           </Avatar>
 
-          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={handleLogout}
+          >
             <LogOut className="h-5 w-5" />
           </Button>
 
