@@ -1,4 +1,4 @@
-import { FamilyHeader } from "@/components/FamilyHeader"
+import { NavigationHeader } from "@/components/NavigationHeader"
 import { StatsCards } from "@/components/StatsCards"
 import { ChildrenOverview } from "@/components/ChildrenOverview"
 import { WhatsAppIntegration } from "@/components/WhatsAppIntegration"
@@ -6,12 +6,12 @@ import { QuickActions } from "@/components/QuickActions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { MessageSquare, Smartphone, Star } from "lucide-react"
-import heroFamily from "@/assets/hero-family.jpg"
+import functionalFamily from "@/assets/functional-family.jpg"
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <FamilyHeader 
+      <NavigationHeader 
         familyName="Família Silva"
         parentName="Ana Silva"
         totalChildren={2}
@@ -48,8 +48,8 @@ const Index = () => {
             
             <div className="relative">
               <img 
-                src={heroFamily} 
-                alt="Família organizando tarefas juntos"
+                src={functionalFamily} 
+                alt="Família organizando tarefas juntos de forma prática e funcional"
                 className="w-full h-auto rounded-xl shadow-2xl"
               />
             </div>
