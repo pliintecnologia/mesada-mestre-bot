@@ -217,7 +217,7 @@ export const LoginPage = () => {
                         fill="#EA4335"
                       />
                     </svg>
-                    Continuar com Google
+                    Continuar com Google (em breve)
                   </Button>
 
                   <Link to="/forgot-password">
@@ -356,7 +356,7 @@ export const LoginPage = () => {
                         fill="#EA4335"
                       />
                     </svg>
-                    Cadastrar com Google
+                    Cadastrar com Google (em breve)
                   </Button>
                 </form>
               </TabsContent>
