@@ -14,7 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      children: {
+        Row: {
+          age: number
+          avatar_url: string | null
+          created_at: string
+          id: string
+          monthly_earnings: number | null
+          name: string
+          score: number | null
+          tasks_completed: number | null
+          tasks_total: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age: number
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          monthly_earnings?: number | null
+          name: string
+          score?: number | null
+          tasks_completed?: number | null
+          tasks_total?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          monthly_earnings?: number | null
+          name?: string
+          score?: number | null
+          tasks_completed?: number | null
+          tasks_total?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          family_name: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          family_name?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          family_name?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          category: string | null
+          child_id: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          points: number | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string | null
+          child_id?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          points?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string | null
+          child_id?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          points?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          content: string
+          id: string
+          message_type: string
+          sender: string
+          sender_name: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          id?: string
+          message_type?: string
+          sender: string
+          sender_name: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          id?: string
+          message_type?: string
+          sender?: string
+          sender_name?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
