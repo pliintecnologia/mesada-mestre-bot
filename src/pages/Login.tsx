@@ -107,12 +107,9 @@ export const LoginPage = () => {
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto p-3 rounded-2xl bg-gradient-to-br from-primary to-primary-glow w-fit mb-4">
-            <Users className="h-8 w-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground">MESAD.AI</h1>
+          <h1 className="text-3xl font-bold text-foreground">MESADA.AI</h1>
           <p className="text-muted-foreground mt-2">
-            Olha a mesad.ai ! Organize a mesada dos seus filhos pelo WhatsApp
+            Olha a mesada.ai ! Organize a mesada dos seus filhos pelo WhatsApp
           </p>
         </div>
 
