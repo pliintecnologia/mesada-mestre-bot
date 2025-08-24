@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -6,28 +8,69 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Users, Mail, Lock, Eye, EyeOff, Smartphone } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useToast } from "@/hooks/use-toast"
 
 export const LoginPage = () => {
+  const { signIn, signUp, loading } = useAuth()
+  const navigate = useNavigate()
+  const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [loginData, setLoginData] = useState({ email: "", password: "" })
+  const [registerData, setRegisterData] = useState({ 
+    familyName: "", 
+    parentName: "", 
+    email: "", 
+    phone: "", 
+    password: "" 
+  })
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    // Simular login - aqui seria a integração com Supabase
-    setTimeout(() => {
-      setIsLoading(false)
-      // Redirecionar para dashboard
-    }, 2000)
+    try {
+      const { error } = await signIn(loginData.email, loginData.password)
+      if (error) {
+        toast({
+          title: "Erro no login",
+          description: error.message,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo ao Mesada Mestre"
+        })
+        navigate("/")
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+    }
   }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    // Simular cadastro - aqui seria a integração com Supabase
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
+    try {
+      const { error } = await signUp(
+        registerData.email, 
+        registerData.password, 
+        registerData.parentName,
+        registerData.phone
+      )
+      
+      if (error) {
+        toast({
+          title: "Erro no cadastro",
+          description: error.message,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Cadastro realizado com sucesso!",
+          description: "Verifique seu e-mail para confirmar a conta"
+        })
+      }
+    } catch (error) {
+      console.error("Register error:", error)
+    }
   }
 
   return (
@@ -70,6 +113,8 @@ export const LoginPage = () => {
                         type="email"
                         placeholder="seu@email.com"
                         className="pl-10"
+                        value={loginData.email}
+                        onChange={(e) => setLoginData({...loginData, email: e.target.value})}
                         required
                       />
                     </div>
@@ -84,6 +129,8 @@ export const LoginPage = () => {
                         type={showPassword ? "text" : "password"}
                         placeholder="Sua senha"
                         className="pl-10 pr-10"
+                        value={loginData.password}
+                        onChange={(e) => setLoginData({...loginData, password: e.target.value})}
                         required
                       />
                       <Button
@@ -102,9 +149,9 @@ export const LoginPage = () => {
                     type="submit"
                     variant="hero"
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={loading}
                   >
-                    {isLoading ? "Entrando..." : "Entrar"}
+                    {loading ? "Entrando..." : "Entrar"}
                   </Button>
                   
                   <Link to="/forgot-password">
@@ -194,9 +241,9 @@ export const LoginPage = () => {
                     type="submit"
                     variant="hero"
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={loading}
                   >
-                    {isLoading ? "Criando conta..." : "Criar Conta"}
+                    {loading ? "Criando conta..." : "Criar Conta"}
                   </Button>
                 </form>
               </TabsContent>
